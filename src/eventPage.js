@@ -1,5 +1,5 @@
 var appData = {
-  ethGasStationData: {}
+  etherscanGastracker: {}
 };
 
 chrome.alarms.create('fetch_gas_price',{
@@ -12,19 +12,20 @@ chrome.alarms.onAlarm.addListener(alarm => {
 
 function updateBadge() {
   chrome.storage.sync.get({
-    gasPriceOption: "average",
+    gasPriceOption: "ProposeGasPrice",
   }, function(items) {
-    const gasPrice = appData.ethGasStationData[items.gasPriceOption];
-    chrome.browserAction.setBadgeText({text: String(parseInt(gasPrice, 10)/10)});
+    const gasPrice = appData.etherscanGastracker[items.gasPriceOption];
+    console.log(gasPrice);
+    chrome.browserAction.setBadgeText({text: String(parseInt(gasPrice))});
   });
 }
 
 function fetchGasPrice() {
-  return fetch("https://ethgasstation.info/json/ethgasAPI.json")
+  return fetch("https://api.etherscan.io/api?module=gastracker&action=gasoracle")
     .then((res) => {return res.json()})
     .then(data => {
       // Store the current data for the popup page
-      appData.ethGasStationData = data;
+      appData.etherscanGastracker = data.result;
       // Update badge
       updateBadge();
     });
